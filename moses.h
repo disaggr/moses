@@ -1,6 +1,7 @@
 #pragma once
 
 #include <pthread.h>
+#include <jemalloc.h>
 
 namespace moses {
 
@@ -50,15 +51,23 @@ class PlaceGuard {
 class IsolatedPlaceGuard {
 }
 
-class ExtendHooks {
+class ExtendHookNuma {
 	public:
-		ExtendHooks(int node) _node(node) { }
-		ExtendHooks(std::string file_backing)
+		ExtendHookNuma(int node) : _node(node) { }
+		alloc(
 	private:
 		int _node;
+}
+
+class ExtendHookFile {
+	public:
+		ExtendHookFile(std::string file_backing) : _file_backing(file_backing) {
+		}
+	private:
 		std::string _file_backing;
+}
 
-
+class ExtendHookSpilling {
 }
 
 enum Places {
