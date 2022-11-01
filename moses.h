@@ -10,13 +10,25 @@ namespace moses {
 static pthread_once_t key_once;
 static pthread_key_t pg_stack_key;
 
+class Arena {
+	public:
+		Arena(unsigned arena, int memory_protection_key, ExtentHookBase hook)
+	private:
+		unsigned _arena;
+		int _memory_protection_key;
+		ExtentHookBase _hook;
+}
+
 class PlaceGuardStack {
 	public:
 		PlaceGuardStack() {
 			(void) pthread_once(&key_once, Initialize());
 			arenas = new std::vector<unsigned>();
 			(void) pthread_setspecific(pg_stack_key, this);
-			//TODO: Set default arena for this thread
+			unsigned current_arena;
+			size_t arena_size = sizeof(unsigned);
+			mallctl("thread.arena", (void *) &current_arena, &size, NULL, NULL);
+			Push(current_arena);
 		}
 
 		void Push(unsigned arena) {
@@ -63,6 +75,8 @@ class PlaceGuard {
 }
 
 class IsolatedPlaceGuard {
+	//TODO: tcache disable or flush to make sure, no leakage is done in the thread caches
+	//see https://github.com/jemalloc/jemalloc/issues/1016
 	public:
 		IsolatedPlaceGuard(const unsigned arena) {
 			PlaceGuardStack *_pg_stack = pthread_getspecific(pg_stack_key);
@@ -77,41 +91,63 @@ class IsolatedPlaceGuard {
 
 class ExtentHookBase {
 	public:
-		ExtendHookBase(unsigned arena_id) {
+		ExtendHookBase() {
 			size_t sz = sizeof(extent_hooks_t);
-			mallctl("arena.0.extent_hooks", (void *)&default_hooks, &sz, NULL, 0)
+			mallctl("arena.0.extent_hooks", (void *)&_default_hooks, &sz, NULL, 0)
 		}
+
 		bool ExtentHookAlloc(extent_hooks_t *extent_hooks, void *new_addr, size_t size,
-				size_t alignment, bool *zero, bool commit, unsigned arena_ind) {
-			default_hooks->alloc(default_hooks, new_addr, size, alignment, zero, commit);
+				size_t alignment, bool *zero, bool commit, unsigned arena_id) {
+			_default_hooks->alloc(default_hooks, new_addr, size, alignment, zero, commit, arena_id);
 		}
 
 		bool ExtentHookDAlloc(extent_hooks_t *extent_hooks, void *addr, size_t size,
-				bool committed, unsigned arena_ind) {
-			default_hooks->dalloc(default_hooks
+				bool committed, unsigned arena_id) {
+			_default_hooks->dalloc(default_hooks, addr, size, committed, arena_id);
+		}
+
 		bool ExtentHookDestroy(extent_hook_t *extent_hooks, void *addr, size_t size,
-			bool committed, unsigned arena_id)
+				bool committed, unsigned arena_id) {
+			_default_hooks->destroy(default_hooks, addr, size, committed, arena_id);
+		}
+
 		bool ExtentHookCommit(extent_hook_t *extent_hooks, void *addr, size_t size,
-			size_t offset, size_t length, unsigned arena_id)
+				size_t offset, size_t length, unsigned arena_id) {
+			_default_hooks->commit(_default_hooks, addr, size, offset, length, arena_id);
+		}
+
 		bool ExtentHookDecommit(extent_hook_t *extent_hooks, void *addr, size_t size,
-			size_t offset, size_t length, unsigned arena_id)
+				size_t offset, size_t length, unsigned arena_id) {
+			_default_hooks->decommit(_default_hooks, addr, size, offset, length, arena_id);
+		}
+
 		bool ExtentHookPurge(extent_hook_t *extent_hooks, void *addr, size_t size,
-			size_t offset, size_t length, unsigned arena_id)
+				size_t offset, size_t length, unsigned arena_id) {
+			_default_hooks->purge(_default_hooks, addr, size, offset, length, arena_id);
+		}
+
 		bool ExtentSplit(extent_hook_t *extent_hooks, void *addr, size_t size, size_t size_a,
-			size_t size_b, bool committed, unsigned arena_id)
+				size_t size_b, bool committed, unsigned arena_id) {
+			_default_hooks->split(_default_hooks, addr, size_a, size_b, committed, arena_id);
+		}
+
 		bool ExtentMerge(extent_hook_t *extent_hooks, void *addr_a, size_t size_a, void *addr_b,
-			size_t size_b, bool committed, unsigned arena_id)
+				size_t size_b, bool committed, unsigned arena_id) {
+			_default_hooks->merge(_default_hooks, addr_a, size_a, addr_b, size_b, committed, arena_id);
+		}
+
 	private:
-		extent_hooks_t *default_hooks;
+		extent_hooks_t *_default_hooks;
 }
 
-class ExtendHookNuma {
+class ExtendHookNuma : ExtentHookBase {
 	public:
-		ExtendHookNuma(unsigned node) : _node(node) { }
-		bool ExtentHookAlloc(extent_hooks_t *extent_hooks, void *new_addr, size_t size,
+		ExtendHookNuma(unsigned node) : ExtentHookBase(), _node(node) {
+		}
+		void *ExtentHookAlloc(extent_hooks_t *extent_hooks, void *new_addr, size_t size,
 				size_t alignment, bool *zero, bool commit, unsigned arena_ind) {
 			new_addr = numa_alloc_onnode(size, _node);
-			return 
+			return new_addr;
 		}
 	private:
 		unsigned _node;
