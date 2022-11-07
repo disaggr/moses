@@ -181,6 +181,10 @@ class Place {
 		Place _place;
 }
 
+class ExtentHookDispatch {
+//TODO: Implement the required jemalloc hooks and dispatch them according to the arena_id to the respective objects
+}
+
 class Moses {
 	public:
 		static Moses& GetInstance() {
@@ -190,10 +194,21 @@ class Moses {
 			return _instance;
 		}
 
-		void Initialize() {
+		void CreateArena(ExtentHookBase &custom_hooks) {
 			unsigned arena_ind;
 			size_t unsigned_sz = sizeof(unsigned);
 			extent_hooks_t hooks;
+			//need to create a generic extent_hooks_t with function pointers to a static class
+			//this class then asks moses to dispatch depending on the arena id
+			hooks.alloc = custom_hooks.ExtentHookAlloc;
+			hooks.dalloc = custom_hooks.
+			hooks.destroy = custom_hooks.
+			hooks.commit = custom_hooks.
+			hooks.decommit = custom_hooks.
+			hooks.purge_lazy = custom_hooks.
+			hooks.purge_forced = custom_hooks.
+			hooks.split = custom_hooks.
+			hooks.merge = custom_hooks.
 			size_t hooks_sz = sizeof(extent_hooks_t);
 			mallctl("arenas.create", (void *) &arena_ind, sz, (void *) hooks, hooks_sz);	
 		}
@@ -213,7 +228,8 @@ class Moses {
 	private:
 		Moses() {}
 		Moses *_instance;
-		std::map<Place, std::vector<unsigned>> arena_cache; 
+		std::map<Place, std::vector<unsigned>> arena_cache;
+		std::map<unsigned, 
 }
 
 }
