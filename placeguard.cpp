@@ -3,7 +3,7 @@
 namespace moses {
 
 PlaceGuardStack::PlaceGuardStack() {
-	arenas = new std::vector<Arena>();
+	arenas = new std::vector<Arena*>();
 	
 	unsigned current_arena;
 	size_t arena_size = sizeof(unsigned);
@@ -18,4 +18,44 @@ PlaceGuardStack::PlaceGuardStack() {
 	Push(arena);
 }
 
+void PlaceGuardStack::Push(Arena *arena) {
+	Push(arena, false);
+}
+
+void PlaceGuardStack::Push(Arena *arena, bool isolated) {
+	/* Use this for isolated arenas
+    Arena *arena = arenas->back();
+	if(isolated == false && arena_pair.second == true) {
+		//Error this is forbidden
+	}*/
+	arenas->push_back(arena);
+    unsigned arena_id = arena->GetId();
+	size_t size = sizeof(unsigned);
+	je_mallctl("thread.arena", NULL, NULL, (void *) &arena_id, size);
+}
+
+Arena* PlaceGuardStack::Pop() {
+	Arena *last_arena = arenas->back();
+	arenas->pop_back();
+	unsigned arena = last_arena->GetId();
+	size_t size = sizeof(unsigned);
+	je_mallctl("thread.arena", NULL, NULL, (void *) &arena, size);
+	return last_arena;
+}
+
+PlaceGuard::PlaceGuard(Arena *arena) {
+	if(_pg_stack == nullptr) {
+		Initialize();
+	}
+	_pg_stack->Push(arena);
+}
+
+PlaceGuard::~PlaceGuard() {
+	Arena *arena = _pg_stack->Pop();
+    // give arena back to moses?
+}
+
+void PlaceGuard::Initialize() {
+	_pg_stack = new PlaceGuardStack();
+}
 }

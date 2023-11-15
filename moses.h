@@ -60,6 +60,7 @@ class Place {
 		std::string _name;
 };
 
+/*
 class Moses {
 	public:
 		static Moses& GetInstance() {
@@ -100,5 +101,5 @@ class Moses {
 		}
 		Moses *_instance;
 		std::map<Place, std::vector<unsigned>> arena_cache;
-};
+}; */
 }

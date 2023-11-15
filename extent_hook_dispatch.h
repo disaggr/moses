@@ -2,10 +2,9 @@
 
 #include <atomic>
 #include "common.h"
+#include "arena.h"
 
 namespace moses {
-
-class Arena;
 
 // This uses jemalloc internals MALLOCX_ARENA_LIMIT to verify that the array is big enough to hold
 // all possible arena indices

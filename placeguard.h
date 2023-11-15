@@ -16,54 +16,26 @@ class PlaceGuardStack {
 	public:
 		PlaceGuardStack();
 
-		void Push(Arena &arena) {
-			Push(arena, false);
-		}
+		void Push(Arena *arena);
+		void Push(Arena *arena, bool isolated);
 
-		void Push(Arena &arena, bool isolated) {
-			std::pair<unsigned,bool> arena_pair = arenas->back();
-			if(isolated == false && arena_pair.second == true) {
-				//Error this is forbidden
-			}
-			arenas->push_back(arena);
-			size_t size = sizeof(unsigned);
-			je_mallctl("thread.arena", NULL, NULL, (void *) &arena, &size);
-		}
-
-		unsigned Pop() {
-			unsigned last_arena = arenas->back();
-			arenas->pop_back();
-			unsigned arena = arenas->back();
-			size_t size = sizeof(unsigned);
-			je_mallctl("thread.arena", NULL, NULL, (void *) &arena, &size);
-			return last_arena;
-		}
+		Arena* Pop();
 	private:
-		std::vector<Arena> *arenas;
-}
+		std::vector<Arena*> *arenas;
+};
 
 thread_local PlaceGuardStack *_pg_stack;
 
 class PlaceGuard {
 	public:
-		PlaceGuard(const unsigned arena) {
-			if(_pg_stack == nullptr) {
-				Initialize();
-			}
-			_pg_stack->Push(arena);
-		}
-
-		~PlaceGuard() {
-			unsigned arena = _pg_stack->Pop();
-			// give arena back to moses?
-	    }
+		PlaceGuard(Arena *arena);
+		~PlaceGuard();
 
 	private:
-		Initialize() {
-			_pg_stack = new PlaceGuardStack();
-		}
+		void Initialize();
 };
 
+/*
 class IsolatedPlaceGuard {
 	//TODO: tcache disable or flush to make sure, no leakage is done in the thread caches
 	//see https://github.com/jemalloc/jemalloc/issues/1016
@@ -81,9 +53,9 @@ class IsolatedPlaceGuard {
 		}
 	
 	private:
-		Initialize() {
+		void Initialize() {
 			_pg_stack = new PlaceGuardStack();
 		}
-};
+}; */
 
 }
