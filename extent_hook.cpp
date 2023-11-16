@@ -3,6 +3,9 @@
 
 namespace moses {
 
+ExtentHook::ExtentHook() {
+}
+
 void * ExtentHook::ExtentHookAlloc(extent_hooks_t *extent_hooks, void *new_addr, size_t size,
 	                                        size_t alignment, bool *zero, bool *commit, unsigned arena_id) {
     std::cout << "Implement me" << std::endl;

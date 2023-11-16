@@ -5,8 +5,7 @@
 #include <pthread.h>
 #include "arena.h"
 #include "common.h"
-#include "extent_hook_dispatch.h"
-#include "extent_hook.h"
+
 
 namespace moses {
 
@@ -23,8 +22,6 @@ class PlaceGuardStack {
 	private:
 		std::vector<Arena*> *arenas;
 };
-
-thread_local PlaceGuardStack *_pg_stack;
 
 class PlaceGuard {
 	public:

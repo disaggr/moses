@@ -1,6 +1,11 @@
 #include "placeguard.h"
 
+#include "extent_hook_dispatch.h"
+#include "extent_hook.h"
+
 namespace moses {
+
+thread_local PlaceGuardStack *_pg_stack;
 
 PlaceGuardStack::PlaceGuardStack() {
 	arenas = new std::vector<Arena*>();

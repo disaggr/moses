@@ -14,15 +14,13 @@ struct alignas(CACHELINE_SIZE) CacheAlignedArenaMapping {
 		std::atomic<Arena *> arena_ptr;
 		char padding[CACHELINE_SIZE];
 	};
-} arena_mapping[MALLOCX_ARENA_LIMIT];
+};
 
 class ExtentHookDispatch {
 	public:
 		static bool Initialize();
 
-		static extent_hooks_t* GetDispatchHooks() {
-            return &_dispatch_hooks;
-		};
+		static extent_hooks_t* GetDispatchHooks();
 
         static bool RegisterArena(Arena *arena);
 
@@ -56,6 +54,6 @@ class ExtentHookDispatch {
 		private:
 			ExtentHookDispatch();
 
-			static extent_hooks_t _dispatch_hooks;
+			static extent_hooks_t *_dispatch_hooks;
 };
 }

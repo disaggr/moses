@@ -4,20 +4,27 @@
 
 namespace moses {
 
+static struct CacheAlignedArenaMapping arena_mapping[MALLOCX_ARENA_LIMIT];
+
+extent_hooks_t *ExtentHookDispatch::_dispatch_hooks = (extent_hooks_t *) malloc(sizeof(extent_hooks_t));
 static bool extent_hook_dispatch_initialized = ExtentHookDispatch::Initialize();
 
 bool ExtentHookDispatch::Initialize() {
-	_dispatch_hooks.alloc = &ExtentHookDispatch::ExtentHookAlloc;
-	_dispatch_hooks.dalloc = &ExtentHookDispatch::ExtentHookDAlloc;
-	_dispatch_hooks.destroy = &ExtentHookDispatch::ExtentHookDestroy;
-	_dispatch_hooks.commit = &ExtentHookDispatch::ExtentHookCommit;
-	_dispatch_hooks.decommit = &ExtentHookDispatch::ExtentHookDecommit;
-	_dispatch_hooks.purge_lazy = &ExtentHookDispatch::ExtentHookPurgeLazy;
-	_dispatch_hooks.purge_forced = &ExtentHookDispatch::ExtentHookPurgeForced;
-	_dispatch_hooks.split = &ExtentHookDispatch::ExtentHookSplit;
-	_dispatch_hooks.merge = &ExtentHookDispatch::ExtentHookMerge;
+	_dispatch_hooks->alloc = &ExtentHookDispatch::ExtentHookAlloc;
+	_dispatch_hooks->dalloc = &ExtentHookDispatch::ExtentHookDAlloc;
+	_dispatch_hooks->destroy = &ExtentHookDispatch::ExtentHookDestroy;
+	_dispatch_hooks->commit = &ExtentHookDispatch::ExtentHookCommit;
+	_dispatch_hooks->decommit = &ExtentHookDispatch::ExtentHookDecommit;
+	_dispatch_hooks->purge_lazy = &ExtentHookDispatch::ExtentHookPurgeLazy;
+	_dispatch_hooks->purge_forced = &ExtentHookDispatch::ExtentHookPurgeForced;
+	_dispatch_hooks->split = &ExtentHookDispatch::ExtentHookSplit;
+	_dispatch_hooks->merge = &ExtentHookDispatch::ExtentHookMerge;
     //Initialize jemallocs arena 0 with this?
     return true;
+}
+
+extent_hooks_t* ExtentHookDispatch::GetDispatchHooks() {
+    return _dispatch_hooks;
 }
 
 bool ExtentHookDispatch::RegisterArena(Arena *arena) {
