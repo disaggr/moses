@@ -1,14 +1,12 @@
 #pragma once
 
 #include <map>
+#include <string>
 #include "common.h"
 #include "placeguard.h"
 #include "extent_hook.h"
 
 namespace moses {
-
-static pthread_once_t key_once;
-static pthread_key_t pg_stack_key;
 
 //TODO explicit_place
 enum class Policy_Priority {
@@ -55,51 +53,21 @@ enum class Policy_Pattern {
 
 class Place {
 	public:
-		Place(std::string name) : _name(name) {}
+		Place(std::string name);
+		std::string GetName();
 	private:
 		std::string _name;
 };
 
-/*
+
 class Moses {
 	public:
-		static Moses& GetInstance() {
-			if(_instance == NULL) {
-				_instance = new Moses();
-			}
-			return _instance;
-		}
-
-		void CreateArena(ExtentHookBase &custom_hooks) {
-			unsigned arena_ind;
-			size_t unsigned_sz = sizeof(unsigned);
-			extent_hooks_t *hooks = _dispatch.GetDispatchHooks();
-			ExtentHook *arena_extent_hooks = new ExtentHook();
-			size_t hooks_sz = sizeof(extent_hooks_t);
-			mallctl("arenas.create", (void *) &arena_ind, sz, (void *) hooks, hooks_sz);
-			Arena *arena = new Arena(arena_ind, custom_hooks);
-			arena_mapping[arena_ind] = arena;
-		}
-
-		unsigned GetArena(Place p) {
-			switch(p) {
-				case fast:
-					unsigned *cpu, *node;
-					int error = getcpu(cpu, node, NULL);
-					if(error)
-						exit(-1);
-					ExtendHookNuma(*node);
-					CreateArena();
-					break;
-			}
-		}
+		static void Initialize(std::map<std::string, Place> *initial_config);
+		static void AddPlace(Place p);
+		static Arena GetArena(Place p);
 	private:
-		Moses() {
-			//TODO check version, to make sure, extent hooks and meta data splitting is available
-			//mallctl("version", ...
-
-		}
-		Moses *_instance;
-		std::map<Place, std::vector<unsigned>> arena_cache;
-}; */
+		Moses();
+		static void CreateArena(Place *place);
+		static std::map<Place, std::vector<Arena>> _place_arena_mapping;
+};
 }
