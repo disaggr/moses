@@ -7,7 +7,7 @@
 
 #ifdef __linux__
 #include <numa.h>
-#include <linux/getcpu.h>
+//#include <linux/getcpu.h>
 #endif
 
 constexpr size_t CACHELINE_SIZE = 128;

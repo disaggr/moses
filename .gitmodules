@@ -2,3 +2,7 @@
 	path = jemalloc
 	url = https://github.com/jemalloc/jemalloc.git
 	branch = dev
+[submodule "memkind"]
+	path = memkind
+	url = https://github.com/memkind/memkind.git
+	branch = dev
