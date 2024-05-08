@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
     //moses::PlaceGuard("Tables");
     // Allocate all tables()
     function_1();
-    function_2(); //write meta data
+    //function_2(); //write meta data
     return 0;
 }
 
@@ -35,6 +35,10 @@ int main(int argc, char *argv[]) {
 //Thread 1 or another Thread hits a PlaceGuard and is assigned to arena 2
 //Now the vector allocates new memory because some internal thresholds of capacity are reached
 //The whole vector is now in arena 2
+
+//For this we could modify the implementation of the datastructures, so that whenever the constructor is called,
+//the object gets an allocator object from the current placeguard stack and uses this allocator for all further allocations
+//provide pseudo code for this szenario
 
 
 //With moses we can specify during start of the application which Places are allocated on which nodes

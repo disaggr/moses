@@ -1,6 +1,7 @@
 #pragma once
 
 #include "extent_hook_base.h"
+#include <string>
 
 namespace moses {
 class ExtentHookNamed: public ExtentHookBase {
@@ -30,5 +31,7 @@ class ExtentHookNamed: public ExtentHookBase {
 
 		bool ExtentHookMerge(extent_hooks_t *extent_hooks, void *addr_a, size_t size_a, void *addr_b,
 				size_t size_b, bool committed, unsigned arena_id);
+	private:
+		std::string _name;
 };
 }

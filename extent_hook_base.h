@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common.h"
+#include <jemalloc/jemalloc.h>
 
 namespace moses {
 

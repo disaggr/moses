@@ -1,8 +1,13 @@
 #include "moses.h"
 
+#include "extent_hook_dispatch.h"
 #include "extent_hook_named.h"
 
+#include <jemalloc/jemalloc.h>
+
 namespace moses {
+
+std::map<unsigned, Arena*> Moses::_place_arena_mapping = {};
 
 static pthread_once_t key_once;
 static pthread_key_t pg_stack_key;
@@ -14,26 +19,27 @@ std::string Place::GetName() {
 }
 
 void Moses::Initialize(std::map<std::string, Place> *initial_config) {
-    //TODO check version, to make sure, extent hooks and meta data splitting is available
+	//TODO check version, to make sure, extent hooks and meta data splitting is available
 	//mallctl("version", ...
-    for (const auto& pair : *initial_config) {
-        const Place place = pair.second;
-        if (_place_arena_mapping.find(place) == _place_arena_mapping.end()) {
-            CreateArena(&place);
-        }
-    }
+	for (auto& pair : *initial_config) {
+		Place place = pair.second;
+		/*if (_place_arena_mapping.find(place.GetName()) == _place_arena_mapping.end()) {
+			CreateArena(&place);
+		}*/
+	}
 }
 
 //Is an ExtentHook the same for a given place, from which arenas are spawned?
+
 void Moses::CreateArena(Place *place) {
 	unsigned arena_ind;
 	size_t unsigned_sz = sizeof(unsigned);
 	ExtentHookNamed *arena_extent_hooks = new ExtentHookNamed(place->GetName());
     extent_hooks_t *hooks = ExtentHookDispatch::GetDispatchHooks();
 	size_t hooks_sz = sizeof(extent_hooks_t);
-	mallctl("arenas.create", (void *) &arena_ind, unsigned_sz, (void *) hooks, hooks_sz);
+	je_mallctl("arenas.create", (void *) &arena_ind, &unsigned_sz, (void *) hooks, hooks_sz);
 	Arena *arena = new Arena(arena_ind, arena_extent_hooks);
-	_place_arena_mapping[arena_ind] = new std::vector<Arena*>(arena);
+	_place_arena_mapping[arena_ind] = arena;
 }
 
 Arena Moses::GetArena(Place p) {

@@ -1,5 +1,6 @@
 #include "extent_hook_dispatch.h"
 #include "arena.h"
+#include <jemalloc/internal/jemalloc_internal_types.h>
 
 
 namespace moses {
