@@ -1,14 +1,25 @@
 #pragma once
 
+#include <string>
 #include <jemalloc/jemalloc.h>
 
 namespace moses {
 
-//TODO Do we need to call the base constructor every time we create a subclass?
-class ExtentHookBase {
+// arenas can be
+// fixed: bound to a NUMA node with no means to spill, but be subject to paging
+// home: have a fixed home node but may spill to other places as well
+// no paging:
+// low priority
+// 
+
+class BaseArena {
 	public:
-		ExtentHookBase();
+		BaseArena();
 		
+		unsigned GetId() {
+			return _arena;
+		}
+
         void* ExtentHookAlloc(extent_hooks_t *extent_hooks, void *new_addr, size_t size,
 				size_t alignment, bool *zero, bool *commit, unsigned arena_id);
 
@@ -37,6 +48,8 @@ class ExtentHookBase {
 				size_t size_b, bool committed, unsigned arena_id);
 
 	private:
+		unsigned _arena;
 		extent_hooks_t *_default_hooks;
 };
+
 }

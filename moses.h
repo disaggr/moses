@@ -4,7 +4,7 @@
 #include <string>
 #include "common.h"
 #include "placeguard.h"
-#include "extent_hook.h"
+#include "place.h"
 
 namespace moses {
 
@@ -51,24 +51,15 @@ enum class Policy_Pattern {
 	Mixed
 };
 
-class Place {
-	public:
-		Place(std::string name);
-		std::string GetName();
-	private:
-		std::string _name;
-};
-
-
 class Moses {
 	public:
 		static void Initialize(std::map<std::string, Place> *initial_config);
 		static void AddPlace(Place p);
-		static Arena GetArena(Place p);
+		//static Arena GetArena(Place p);
+		//static void CreateArena(Place *place);
 	private:
 		Moses();
-		static void CreateArena(Place *place);
 		//static std::map<Place, std::vector<Arena>> _place_arena_mapping;
-		static std::map<unsigned int, Arena*> _place_arena_mapping;
+		//static std::map<unsigned int, Arena*> _place_arena_mapping;
 };
 }

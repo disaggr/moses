@@ -1,10 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <thread>
-#include <pthread.h>
-#include "arena.h"
-#include "common.h"
+#include "place.h"
 
 
 namespace moses {
@@ -14,45 +11,19 @@ class PlaceGuardStack {
 	//See https://github.com/jemalloc/jemalloc/issues/1016
 	public:
 		PlaceGuardStack();
-
-		void Push(Arena *arena);
-		void Push(Arena *arena, bool isolated);
-
-		Arena* Pop();
+		void Push(Place *place);
+		void Pop();
 	private:
-		std::vector<Arena*> *arenas;
+		std::vector<Place*> *places;
 };
 
 class PlaceGuard {
 	public:
-		PlaceGuard(Arena *arena);
+		PlaceGuard(Place *place);
 		~PlaceGuard();
 
 	private:
 		void Initialize();
 };
-
-/*
-class IsolatedPlaceGuard {
-	//TODO: tcache disable or flush to make sure, no leakage is done in the thread caches
-	//see https://github.com/jemalloc/jemalloc/issues/1016
-	public:
-		IsolatedPlaceGuard(const unsigned arena) {
-			if(_pg_stack == nullptr) {
-				Initialize();
-			}
-			_pg_stack->Push(arena, true);
-		}
-
-		~IsolatedPlaceGuard() {
-			//TODO: Do we need a special Pop function for sec isolation?
-			unsigned arena = _pg_stack->Pop();
-		}
-	
-	private:
-		void Initialize() {
-			_pg_stack = new PlaceGuardStack();
-		}
-}; */
 
 }

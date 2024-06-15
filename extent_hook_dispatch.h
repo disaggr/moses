@@ -11,7 +11,7 @@ namespace moses {
 // TODO: Check if cacheline aligned
 struct alignas(CACHELINE_SIZE) CacheAlignedArenaMapping {
 	union {
-		std::atomic<Arena *> arena_ptr;
+		std::atomic<BaseArena *> arena_ptr;
 		char padding[CACHELINE_SIZE];
 	};
 };
@@ -22,7 +22,7 @@ class ExtentHookDispatch {
 
 		static extent_hooks_t* GetDispatchHooks();
 
-        static bool RegisterArena(Arena *arena);
+        static bool RegisterArena(BaseArena *arena);
 
 		static void * ExtentHookAlloc(extent_hooks_t *extent_hooks, void *new_addr, size_t size,
 				size_t alignment, bool *zero, bool *commit, unsigned arena_id);

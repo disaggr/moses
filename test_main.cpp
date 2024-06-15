@@ -8,11 +8,14 @@
 // - Object to arena pinning (hardest and most expensive one)
 // - Class to arena pinning (Factory(Place) pattern, because otherwise the memory get allocated outside of class definition)
 
-std::map<std::string, moses::Place> places = { {"Place 1", moses::Place("Place 1")}, {"Place 2", moses::Place("Place 2")}};
+std::map<std::string, moses::Place> places = {
+    {"table", moses::Place("/long_lived/", "table", moses::contention::LOW)},
+    {"temp", moses::Place("/short_lived/", "temp", moses::contention::HIGH)}
+};
 
 void function_1() {
     std::vector<int> *huge_vector = new std::vector<int>(100000);
-    //moses::PlaceGuard(moses::Place("Temporary data"));
+    moses::PlaceGuard guard(&places.at("temp"));
     int *huge_array = (int *) malloc(100000 * sizeof(int));
     for(int i = 0; i < 100000; i++) {
         huge_vector->at(i) = 1;
@@ -21,8 +24,8 @@ void function_1() {
 }
 
 int main(int argc, char *argv[]) {
-    moses::Moses::Initialize(&places);
-    //moses::PlaceGuard("Tables");
+    //moses::Moses::Initialize(&places);
+    moses::PlaceGuard guard(&places.at("table"));
     // Allocate all tables()
     function_1();
     //function_2(); //write meta data
