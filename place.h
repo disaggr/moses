@@ -42,5 +42,6 @@ class Place {
 		std::string _path, _name;
         contention _arena_contention;
         std::map<core_index, BaseArena*> *_core_to_arena;
+        //std::map<uint64_t extent_address, 
 };
 }

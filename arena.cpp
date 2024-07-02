@@ -1,5 +1,6 @@
 #include "arena.h"
 #include <iostream>
+#include <sys/mman.h>
 
 namespace moses {
 
@@ -8,8 +9,8 @@ Arena::Arena() {
 
 void* Arena::ExtentHookAlloc(extent_hooks_t *extent_hooks, void *new_addr, size_t size,
 				                        size_t alignment, bool *zero, bool *commit, unsigned arena_id) {
-	std::cout << "Implement me" << std::endl;
-	return NULL;
+	void* new_extent = mmap(new_addr, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	return new_extent;
 }
 
 bool Arena::ExtentHookDAlloc(extent_hooks_t *extent_hooks, void *addr, size_t size,

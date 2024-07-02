@@ -12,6 +12,11 @@ namespace moses {
 // low priority
 // 
 
+struct Extent {
+	uint64_t addr;
+	size_t size;
+};
+
 class BaseArena {
 	public:
 		BaseArena();

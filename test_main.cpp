@@ -23,6 +23,7 @@ void function_1() {
     }
 }
 
+
 int main(int argc, char *argv[]) {
     //moses::Moses::Initialize(&places);
     moses::PlaceGuard guard(&places.at("table"));

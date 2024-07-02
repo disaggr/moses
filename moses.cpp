@@ -17,9 +17,8 @@ void Moses::Initialize(std::map<std::string, Place> *initial_config) {
 	//je_mallctl("opt.percpu_arena", NULL, NULL, NULL, 0);
 	for (auto& pair : *initial_config) {
 		Place place = pair.second;
-		//if (_place_arena_mapping.find(place.GetName()) == _place_arena_mapping.end()) {
-			//CreateArena(&place);
-		//}
+		_place_tree.Insert(place);
+		
 	}
 }
 

@@ -1,8 +1,8 @@
 #include "placeguard.h"
+#include "extent_hook_dispatch.h"
 
 #include <thread>
 #include <pthread.h>
-#include "extent_hook_dispatch.h"
 
 namespace moses {
 
@@ -10,21 +10,6 @@ thread_local PlaceGuardStack *_pg_stack;
 
 PlaceGuardStack::PlaceGuardStack() {
 	places = new std::vector<Place*>();
-	
-	
-	/*unsigned current_arena;
-	size_t arena_size = sizeof(unsigned);
-	je_mallctl("thread.arena", (void *) &current_arena, &arena_size, NULL, 0);
-	//check if we already have an arena object
-    
-	char command[64];
-    snprintf(command, sizeof(command), "arena.%u.extent_hooks", current_arena);
-	extent_hooks_t * extent_hooks = ExtentHookDispatch::GetDispatchHooks();
-	je_mallctl(command, nullptr, nullptr, static_cast<void*>(extent_hooks), sizeof(extent_hooks_t*));
-	
-	ExtentHook *arena_extent_hooks = new ExtentHook();
-    Arena *arena = new Arena(current_arena, arena_extent_hooks);
-	Push(arena);*/
 }
 
 void PlaceGuardStack::Push(Place *place) {
@@ -43,8 +28,8 @@ void PlaceGuardStack::Pop() {
 	if (places->size() == 1) {
 		return;
 	}
-	BaseArena *last_arena = places->back()->GetArena();
 	places->pop_back();
+	BaseArena *last_arena = places->back()->GetArena();
 	unsigned arena = last_arena->GetId();
 	size_t size = sizeof(unsigned);
 	je_mallctl("tcache.flush", NULL, NULL, NULL, 0);
