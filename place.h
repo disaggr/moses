@@ -2,6 +2,7 @@
 
 #include <string>
 #include <map>
+#include <memory>
 #include "memory_mapped_file_page_manager.h"
 
 namespace moses {

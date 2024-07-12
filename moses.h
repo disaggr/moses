@@ -4,6 +4,7 @@
 #include <string>
 #include "common.h"
 #include "placeguard.h"
+#include "arena.h"
 #include "place.h"
 #include "place_tree.h"
 

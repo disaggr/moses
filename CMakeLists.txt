@@ -7,7 +7,7 @@ file(GLOB SOURCES "*.cpp")
 add_executable(moses ${SOURCES})
 
 set(JEMALLOC_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/jemalloc/include")
-set(JEMALLOC_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/jemalloc/lib/libjemalloc.dylib")
+set(JEMALLOC_LIBRARIES "-ljemalloc")
 set(JEMALLOC_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/jemalloc/lib/")
 
 target_include_directories(moses PRIVATE ${JEMALLOC_INCLUDE_DIR})

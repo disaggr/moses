@@ -21,7 +21,7 @@ struct Extent {
 
 class BaseArena {
 	public:
-		BaseArena();
+		BaseArena(Place *place = NULL);
 		
 		unsigned GetId() {
 			return _arena;

@@ -4,7 +4,7 @@
 
 namespace moses {
 
-BaseArena::BaseArena() {
+BaseArena::BaseArena(Place *place) {
 	//Have this arena the default hooks if not overridden
 	size_t sz = sizeof(extent_hooks_t);
 	//Assumption: arena.0 is always present
@@ -80,6 +80,8 @@ bool BaseArena::ExtentHookMerge(extent_hooks_t *extent_hooks, void *addr_a, size
 }
 
 Place* BaseArena::GetPlace() {
-	return _pg_stack.top();
+	//return _pg_stack.top();
+  return _place;
+}
 
 }

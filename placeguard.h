@@ -5,8 +5,6 @@
 
 namespace moses {
 
-extern thread_local PlaceGuardStack *_pg_stack;
-
 class PlaceGuardStack {
 	public:
 		PlaceGuardStack();
@@ -25,5 +23,7 @@ class PlaceGuard {
 	private:
 		void Initialize();
 };
+
+extern thread_local PlaceGuardStack *_pg_stack;
 
 }
