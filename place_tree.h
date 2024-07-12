@@ -15,8 +15,8 @@ struct Node {
 class PlaceTree {
 public:
     PlaceTree();
-    void Insert(const Place& place);
-    bool Get(const Place& place);
+    void Insert(Place& place);
+    bool Get(std::string path, std::string name, Place* place);
 private:
     Node* root;
 };

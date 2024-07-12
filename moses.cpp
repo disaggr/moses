@@ -6,7 +6,7 @@
 
 namespace moses {
 
-//std::map<unsigned, Arena*> Moses::_place_arena_mapping = {};
+std::map<Arena*, Place*> Moses::_arena_place_mapping = {};
 
 static pthread_once_t key_once;
 static pthread_key_t pg_stack_key;
@@ -17,7 +17,8 @@ void Moses::Initialize(std::map<std::string, Place> *initial_config) {
 	//je_mallctl("opt.percpu_arena", NULL, NULL, NULL, 0);
 	for (auto& pair : *initial_config) {
 		Place place = pair.second;
-		_place_tree.Insert(place);
+		place.AddPageManager(std::make_shared<MemoryMappedFilePageManager>(place.GetPath(), place.GetName(), 1024 * 1024 * 1024));
+		//_place_tree.Insert(place);
 		
 	}
 }

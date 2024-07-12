@@ -60,8 +60,7 @@ class Moses {
 		//static void CreateArena(Place *place);
 	private:
 		Moses();
-		PlaceTree _place_tree;
-		//static std::map<Place, std::vector<Arena>> _place_arena_mapping;
-		//static std::map<unsigned int, Arena*> _place_arena_mapping;
+		static PlaceTree _place_tree;
+		static std::map<Arena*, Place*> _arena_place_mapping;
 };
 }

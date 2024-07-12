@@ -3,17 +3,21 @@
 #include "place.h"
 
 #include <iostream>
+#include <string>
+#include <sstream>
 #include <vector>
+
+namespace moses {
 
 PlaceTree::PlaceTree() {
     root = new Node();
     root->parent = root;
 }
 
-void PlaceTree::Insert(const Place& place) {
-    std::string path = place.getPath();
+void PlaceTree::Insert(Place& place) {
+    std::string path = place.GetPath();
     std::vector<std::string> pathParts;
-    std::stringstream ss(path);
+    std::stringstream ss(path); // Remove the template argument
     std::string part;
     Node *current_node = root;
     while (std::getline(ss, part, '/')) {
@@ -54,7 +58,7 @@ bool PlaceTree::Get(std::string path, std::string name, Place* place) {
         }
     }
     for (Place* p : current_node->places) {
-        if (p->getName() == name) {
+        if (p->GetName() == name) {
             place = p;
             return true;
         }

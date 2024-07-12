@@ -9,8 +9,8 @@
 // - Class to arena pinning (Factory(Place) pattern, because otherwise the memory get allocated outside of class definition)
 
 std::map<std::string, moses::Place> places = {
-    {"table", moses::Place("/long_lived/", "table", moses::contention::LOW)},
-    {"temp", moses::Place("/short_lived/", "temp", moses::contention::HIGH)}
+    {"table", moses::Place("./long_lived", "table", moses::contention::LOW)},
+    {"temp", moses::Place("./short_lived", "temp", moses::contention::HIGH)}
 };
 
 void function_1() {
@@ -25,7 +25,7 @@ void function_1() {
 
 
 int main(int argc, char *argv[]) {
-    //moses::Moses::Initialize(&places);
+    moses::Moses::Initialize(&places);
     moses::PlaceGuard guard(&places.at("table"));
     // Allocate all tables()
     function_1();

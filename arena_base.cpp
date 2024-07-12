@@ -1,4 +1,5 @@
 #include "arena_base.h"
+#include "place.h"
 #include "extent_hook_dispatch.h"
 
 namespace moses {
@@ -77,5 +78,8 @@ bool BaseArena::ExtentHookMerge(extent_hooks_t *extent_hooks, void *addr_a, size
 	bool ret = _default_hooks->merge(_default_hooks, addr_a, size_a, addr_b, size_b, committed, arena_id);
 	return ret;
 }
+
+Place* BaseArena::GetPlace() {
+	return _pg_stack.top();
 
 }

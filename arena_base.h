@@ -12,6 +12,8 @@ namespace moses {
 // low priority
 // 
 
+class Place;
+
 struct Extent {
 	uint64_t addr;
 	size_t size;
@@ -51,9 +53,12 @@ class BaseArena {
 
 		bool ExtentHookMerge(extent_hooks_t *extent_hooks, void *addr_a, size_t size_a, void *addr_b,
 				size_t size_b, bool committed, unsigned arena_id);
+		
+		Place* GetPlace();
 
 	private:
 		unsigned _arena;
+		Place *_place;
 		extent_hooks_t *_default_hooks;
 };
 

@@ -37,6 +37,10 @@ void PlaceGuardStack::Pop() {
 	return;
 }
 
+Place* PlaceGuardStack::Top() {
+	return places->back();
+}
+
 PlaceGuard::PlaceGuard(Place *place) {
 	if(_pg_stack == nullptr) {
 		Initialize();
