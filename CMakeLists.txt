@@ -4,8 +4,8 @@ include(ExternalProject)
 project(moses)
 set(CMAKE_CXX_STANDARD 17)
 
-file(GLOB SOURCES "*.cpp")
-add_executable(moses ${SOURCES})
+file(GLOB LIBMOSES_SOURCES "libmoses/*.cpp")
+add_library(moses SHARED ${LIBMOSES_SOURCES})
 
 # begin jemalloc integration
 # define source and target directories
@@ -31,16 +31,22 @@ add_library(libjemalloc-pic STATIC IMPORTED GLOBAL)
 set_target_properties(libjemalloc PROPERTIES
         "IMPORTED_LOCATION" "${JEMALLOC_INSTALL_DIR}/lib/libjemalloc.a")
 set_target_properties(libjemalloc-pic PROPERTIES
-        "IMPORTED_LOCATION" "${JEMALLOC_INSTALL_DIR}/lib/libjemalloc-pic.a")
+        "IMPORTED_LOCATION" "${JEMALLOC_INSTALL_DIR}/lib/libjemalloc_pic.a")
 
 # tell cmake to build the external project to produce the library files
 add_dependencies(libjemalloc Jemalloc)
 add_dependencies(libjemalloc-pic Jemalloc)
 
 # set include directories for moses
+set(LIBMOSES_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libmoses)
 set(JEMALLOC_INCLUDE_DIR ${JEMALLOC_INSTALL_DIR}/include)
 set(JEMALLOC_INTERNAL_INCLUDE_DIR ${JEMALLOC_SRC_DIR}/include)
-target_include_directories(moses PRIVATE ${JEMALLOC_INCLUDE_DIR} ${JEMALLOC_INTERNAL_INCLUDE_DIR})
+target_include_directories(moses PRIVATE ${LIBMOSES_INCLUDE_DIR} ${JEMALLOC_INCLUDE_DIR} ${JEMALLOC_INTERNAL_INCLUDE_DIR})
 
 # link moses to static libjemalloc
-target_link_libraries(moses libjemalloc)
+target_link_libraries(moses libjemalloc-pic)
+
+# also produce a test binary
+add_executable(moses_test moses_test.cpp)
+target_include_directories(moses_test PRIVATE ${LIBMOSES_INCLUDE_DIR})
+target_link_libraries(moses_test moses)
