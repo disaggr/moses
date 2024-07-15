@@ -15,7 +15,7 @@ PlaceTree::PlaceTree() {
 }
 
 void PlaceTree::Insert(Place& place) {
-    std::string path = place.GetPath();
+    std::string path = place.Path;
     std::vector<std::string> pathParts;
     std::stringstream ss(path); // Remove the template argument
     std::string part;
@@ -58,7 +58,7 @@ bool PlaceTree::Get(std::string path, std::string name, Place* place) {
         }
     }
     for (Place* p : current_node->places) {
-        if (p->GetName() == name) {
+        if (p->Name == name) {
             place = p;
             return true;
         }

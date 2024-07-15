@@ -2,6 +2,7 @@
 
 #include "arena.h"
 
+// FIXME: what is defined(numa)? isn't this always false?
 #if defined(numa) && defined(__linux__)
 #include <sched.h> 
 #else
@@ -9,28 +10,30 @@ int sched_getcpu(void) {
     return 0;
 }
 #endif
-namespace moses{
 
-Place::Place(std::string path, std::string name, contention arena_contention) 
-    : _name(name), _path(path), _arena_contention(arena_contention) {
-    _core_to_arena = new std::map<core_index, BaseArena*>();
-    _page_managers = new std::vector<std::shared_ptr<MemoryMappedFilePageManager>>();
-}
+namespace moses {
 
 void Place::AddPageManager(std::shared_ptr<MemoryMappedFilePageManager> page_manager) {
-    _page_managers->push_back(page_manager);
+    // FIXME: what is a MemoryMappedFilePageManager?
+    _page_managers.push_back(page_manager);
 }
 
 std::shared_ptr<MemoryMappedFilePageManager> Place::GetPageManager() {
-    return _page_managers->at(0);
+    // FIXME: why can we "add" page managers, but only access the first? what if it doesn't exist?
+    return _page_managers.at(0);
 }
 
 BaseArena* Place::GetArena() {
+    // for this place, produce the arena for the currently active cpu id, create if necessary
+    // FIXME: why do we need an arena per CPU?
+    
     int cpu = sched_getcpu();
+
     //get NUMA node
     //if contention is high, have an arena per logical core
     //if contention is medium, have an arena per (big) core
     //if contention is low, have an arena per NUMA node
+
     switch (_arena_contention)
     {
     case contention::HIGH :
@@ -45,18 +48,13 @@ BaseArena* Place::GetArena() {
     default:
         break;
     }
-    if (_core_to_arena->find(cpu) == _core_to_arena->end()) {
+
+    if (_core_to_arena.find(cpu) == _core_to_arena.end()) {
         Arena *arena = new Arena(this);
-        _core_to_arena->emplace(cpu, arena);
+        _core_to_arena.emplace(cpu, arena);
     }
-    return _core_to_arena->at(cpu);
+
+    return _core_to_arena.at(cpu);
 }
 
-std::string Place::GetName() {
-    return _name;
-}
-
-std::string Place::GetPath() {
-    return _path;
-}
 }

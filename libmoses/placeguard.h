@@ -1,29 +1,31 @@
 #pragma once
 
 #include "place.h"
+
 #include <vector>
 
 namespace moses {
 
 class PlaceGuardStack {
-	public:
-		PlaceGuardStack();
-		void Push(Place *place);
-		void Pop();
-		Place* Top();
-	private:
-		std::vector<Place*> *places;
+    public:
+        PlaceGuardStack() : _places() {}
+
+        void Push(Place *place);
+        void Pop();
+        Place* Top();
+
+    private:
+        void UpdateArena();
+
+        std::vector<Place*> _places;
 };
 
 class PlaceGuard {
-	public:
-		PlaceGuard(Place *place);
-		~PlaceGuard();
-
-	private:
-		void Initialize();
+    public:
+        PlaceGuard(Place *place);
+        ~PlaceGuard();
 };
 
-extern thread_local PlaceGuardStack *_pg_stack;
+extern thread_local PlaceGuardStack _pg_stack;
 
 }

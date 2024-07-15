@@ -1,58 +1,61 @@
 #include "placeguard.h"
-#include "extent_hook_dispatch.h"
+
+#include <jemalloc/jemalloc.h>
 
 #include <thread>
 #include <pthread.h>
 
 namespace moses {
 
-thread_local PlaceGuardStack *_pg_stack;
+// a thread-local reference to a placeguard stack for each thread
+// FIXME: does a new thread inherit its parent placeguard stack? interaction is unclear.
+thread_local PlaceGuardStack _pg_stack;
 
-PlaceGuardStack::PlaceGuardStack() {
-	places = new std::vector<Place*>();
-}
 
 void PlaceGuardStack::Push(Place *place) {
-	//check for recursion
-	if (!places->empty() && places->back() == place) {
-		return;
-	}
-	places->push_back(place);
-    unsigned arena_id = place->GetArena()->GetId();
-	size_t size = sizeof(unsigned);
-	je_mallctl("tcache.flush", NULL, NULL, NULL, 0);
-	je_mallctl("thread.arena", NULL, NULL, (void *) &arena_id, size);
+    // push the given place to the top of the placeguard stack, unless it is a repeat of the previous place, then update the jemalloc thread arena
+    // FIXME: why is the repeat a special case? wouldn't we get in trouble if we nested the same placeguard, ignored the push, but don't ignore the pop?
+    if (!_places.empty() && _places.back() == place) {
+        return;
+    }
+
+    _places.push_back(place);
+    UpdateArena();
 }
 
 void PlaceGuardStack::Pop() {
-	if (places->size() == 1) {
-		return;
-	}
-	places->pop_back();
-	BaseArena *last_arena = places->back()->GetArena();
-	unsigned arena = last_arena->GetId();
-	size_t size = sizeof(unsigned);
-	je_mallctl("tcache.flush", NULL, NULL, NULL, 0);
-	je_mallctl("thread.arena", NULL, NULL, (void *) &arena, size);
-	return;
+    // remove the place currently at the top of the placeguard stack, unless the stack would become empty, then update the jemalloc thread arena
+    // FIXME: why is the empty stack a special case? don't we start with an empty stack? shouldn't we be able to return to that state?
+    if (_places.size() == 1) {
+        return;
+    }
+
+    _places.pop_back();
+    UpdateArena();
 }
 
 Place* PlaceGuardStack::Top() {
-	return places->back();
+    // produce the place currently at the top of the placeguard stack
+    return _places.back();
+}
+
+void PlaceGuardStack::UpdateArena() {
+    // update jemalloc with the arena currently at the top of the stack
+    unsigned arena_id = _places.back()->GetArena()->GetId();
+
+    je_mallctl("tcache.flush", NULL, NULL, NULL, 0);
+    je_mallctl("thread.arena", NULL, NULL, (void*)&arena_id, sizeof(arena_id));
 }
 
 PlaceGuard::PlaceGuard(Place *place) {
-	if(_pg_stack == nullptr) {
-		Initialize();
-	}
-	_pg_stack->Push(place);
+    // creating the PlaceGuard pushes the given place to the top of the thread-local place stack
+    _pg_stack.Push(place);
 }
 
 PlaceGuard::~PlaceGuard() {
-	_pg_stack->Pop();
+    // when the PlaceGuard goes out of scope and is destroyed, its place is remvoed from the top of the stack
+    // FIXME: this assumes that placeguards are destroyed in reverse order of their creation. Is that always true?
+    _pg_stack.Pop();
 }
 
-void PlaceGuard::Initialize() {
-	_pg_stack = new PlaceGuardStack();
-}
 }

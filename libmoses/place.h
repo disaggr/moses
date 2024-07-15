@@ -1,12 +1,15 @@
 #pragma once
 
+#include "memory_mapped_file_page_manager.h"
+#include "arena_base.h"
+
 #include <string>
 #include <map>
 #include <memory>
-#include "memory_mapped_file_page_manager.h"
 
 namespace moses {
 
+// using a 64bit integer type for enumerating CPU cores.
 using core_index = uint64_t;
 
 enum contention {
@@ -33,21 +36,25 @@ enum contention {
 /*  We create the arenas in a lazy way, meaning that upon association we check if we have an arena object already,
     if not only then we create a new one */
 
-class BaseArena;
-
 class Place {
-	public:
-		Place(std::string path, std::string name, contention arena_contention = contention::HIGH);
-		std::string GetName();
-        std::string GetPath();
+    public:
+        Place(std::string path, std::string name, contention arena_contention = contention::HIGH)
+            : Path(path), Name(name), _arena_contention(arena_contention) {};
+
+        const std::string Path;
+        const std::string Name;
+
         BaseArena* GetArena();
+
         void AddPageManager(std::shared_ptr<MemoryMappedFilePageManager> page_manager);
         std::shared_ptr<MemoryMappedFilePageManager> GetPageManager();
-	private:
-		std::string _path, _name;
+
+    private:
         contention _arena_contention;
-        std::map<core_index, BaseArena*> *_core_to_arena;
-        std::vector<std::shared_ptr<MemoryMappedFilePageManager>> *_page_managers;
+
+        std::map<core_index, BaseArena*> _core_to_arena;
+        std::vector<std::shared_ptr<MemoryMappedFilePageManager>> _page_managers;
         //std::map<uint64_t extent_address, 
 };
+
 }
