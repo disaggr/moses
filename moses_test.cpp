@@ -1,7 +1,8 @@
 #include "moses.h"
+#include "jemalloc/jemalloc.h"
 
 // Make memory management a cooperative task
-//Give examples for:
+// Give examples for:
 // - Thread to arena pinning, e.g. place guards with priorities
 // - Core to arena pinning, look up what jemalloc can do here
 // - Program Execution Phase to arena pinning (instruction steram executed by a thread), e.g. place guards
@@ -10,53 +11,54 @@
 
 std::map<std::string, moses::Place> places = {
     {"table", moses::Place("./long_lived", "table", moses::contention::LOW)},
-    {"temp", moses::Place("./short_lived", "temp", moses::contention::HIGH)}
-};
+    {"temp", moses::Place("./short_lived", "temp", moses::contention::HIGH)}};
 
-void function_1() {
+void function_1()
+{
     std::vector<int> *huge_vector = new std::vector<int>(100000);
+    printf("table vector: %p\n", huge_vector);
+    printf("table vector data: %p\n", huge_vector->data());
     moses::PlaceGuard guard(&places.at("temp"));
-    int *huge_array = (int *) malloc(100000 * sizeof(int));
-    for(int i = 0; i < 100000; i++) {
-        huge_vector->at(i) = 1;
-        huge_array[i] = 1;
+    int *huge_array = (int *)je_malloc(100000 * sizeof(int));
+    printf("temp array: %p\n", huge_array);
+    for (int i = 0; i < 100000; i++)
+    {
+        huge_vector->at(i) = i;
+        huge_array[i] = i;
     }
 }
 
-
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     moses::Moses::Initialize(&places);
     moses::PlaceGuard guard(&places.at("table"));
     // Allocate all tables()
     function_1();
-    //function_2(); //write meta data
+    // function_2(); //write meta data
     return 0;
 }
 
-//Could we use the explicit arena placeguards to debug and improve object placement
-//What can we do with unwanted side-effects:
-//Like: Thread 1 allocates vector 1 with arena 1
-//Thread 1 or another Thread hits a PlaceGuard and is assigned to arena 2
-//Now the vector allocates new memory because some internal thresholds of capacity are reached
-//The whole vector is now in arena 2
+// Could we use the explicit arena placeguards to debug and improve object placement
+// What can we do with unwanted side-effects:
+// Like: Thread 1 allocates vector 1 with arena 1
+// Thread 1 or another Thread hits a PlaceGuard and is assigned to arena 2
+// Now the vector allocates new memory because some internal thresholds of capacity are reached
+// The whole vector is now in arena 2
 
-//For this we could modify the implementation of the datastructures, so that whenever the constructor is called,
-//the object gets an allocator object from the current placeguard stack and uses this allocator for all further allocations
-//provide pseudo code for this szenario
+// For this we could modify the implementation of the datastructures, so that whenever the constructor is called,
+// the object gets an allocator object from the current placeguard stack and uses this allocator for all further allocations
+// provide pseudo code for this szenario
 
+// With moses we can specify during start of the application which Places are allocated on which nodes
+// We could do this with bitmaps representing nodes where the memory could come from, with a home node for default allocations
 
-//With moses we can specify during start of the application which Places are allocated on which nodes
-//We could do this with bitmaps representing nodes where the memory could come from, with a home node for default allocations
+// Object to arena mapping with placeguards and explicit malloc(x) calls
+// Thread to arena mapping with placeguards and regular checks?
 
+// Tradeoff between finegrain control (e.g. specifiy on every malloc call the arena) vs. coarsegrain implementation with placeguards.
+// For the latter it may happen that some objects are unintentionally placed within an arena
 
-//Object to arena mapping with placeguards and explicit malloc(x) calls
-//Thread to arena mapping with placeguards and regular checks?
-
-//Tradeoff between finegrain control (e.g. specifiy on every malloc call the arena) vs. coarsegrain implementation with placeguards.
-//For the latter it may happen that some objects are unintentionally placed within an arena
-
-//Can we find better names for the concept of place, placement, memory, memory pool?
-
+// Can we find better names for the concept of place, placement, memory, memory pool?
 
 // We could visualize the page access trace with additional allocation metadata, e.g. collect a stacktrace whenever malloc is called.
 // Though this has several limitations:

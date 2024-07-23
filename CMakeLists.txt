@@ -48,5 +48,5 @@ target_link_libraries(moses libjemalloc-pic)
 
 # also produce a test binary
 add_executable(moses_test moses_test.cpp)
-target_include_directories(moses_test PRIVATE ${LIBMOSES_INCLUDE_DIR})
+target_include_directories(moses_test PRIVATE ${LIBMOSES_INCLUDE_DIR} ${JEMALLOC_INCLUDE_DIR})
 target_link_libraries(moses_test moses)
