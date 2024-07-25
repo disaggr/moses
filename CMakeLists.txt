@@ -18,24 +18,28 @@ ExternalProject_Add(Jemalloc
     SOURCE_DIR          ${JEMALLOC_SRC_DIR}
     PREFIX              ${JEMALLOC_PREFIX_DIR}
     CONFIGURE_COMMAND   cd ${JEMALLOC_SRC_DIR} && ./autogen.sh && ./configure
-                            --with-jemalloc-prefix=je_
+    #                            --with-jemalloc-prefix=je_
                             --prefix=${JEMALLOC_INSTALL_DIR}
-    BUILD_COMMAND       cd ${JEMALLOC_SRC_DIR} && make && make install_lib_static install_include
+    BUILD_COMMAND       cd ${JEMALLOC_SRC_DIR} && make && make install_lib install_lib_static install_include
     INSTALL_COMMAND     "")
 
 # set up targets for CMAKE to understand the jemalloc libs
 add_library(libjemalloc STATIC IMPORTED GLOBAL)
 add_library(libjemalloc-pic STATIC IMPORTED GLOBAL)
+add_library(libjemalloc-shared SHARED IMPORTED GLOBAL)
 
 # associate the CMAKE targets with the built external static libs
 set_target_properties(libjemalloc PROPERTIES
         "IMPORTED_LOCATION" "${JEMALLOC_INSTALL_DIR}/lib/libjemalloc.a")
 set_target_properties(libjemalloc-pic PROPERTIES
         "IMPORTED_LOCATION" "${JEMALLOC_INSTALL_DIR}/lib/libjemalloc_pic.a")
+set_target_properties(libjemalloc-shared PROPERTIES
+        "IMPORTED_LOCATION" "${JEMALLOC_INSTALL_DIR}/lib/libjemalloc.so")
 
 # tell cmake to build the external project to produce the library files
 add_dependencies(libjemalloc Jemalloc)
 add_dependencies(libjemalloc-pic Jemalloc)
+add_dependencies(libjemalloc-shared Jemalloc)
 
 # set include directories for moses
 set(LIBMOSES_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libmoses)

@@ -1,5 +1,4 @@
 #include "moses.h"
-#include "jemalloc/jemalloc.h"
 
 // Make memory management a cooperative task
 // Give examples for:
@@ -18,9 +17,17 @@ void function_1()
     std::vector<int> *huge_vector = new std::vector<int>(100000);
     printf("table vector: %p\n", huge_vector);
     printf("table vector data: %p\n", huge_vector->data());
+    std::vector<int> *empty_vector = new std::vector<int>();
+    printf("table vector: %p\n", empty_vector);
+    printf("table vector data: %p\n", empty_vector->data());
+    std::vector<int> stack_vector;
+    printf("stack vector: %p\n", &stack_vector);
     moses::PlaceGuard guard(&places.at("temp"));
-    int *huge_array = (int *)je_malloc(100000 * sizeof(int));
+    //int *huge_array = (int *)malloc(100000 * sizeof(int));
+    int *huge_array = new int[100000];
+    int *small_array = new int[2];
     printf("temp array: %p\n", huge_array);
+    printf("temp array: %p\n", small_array);
     for (int i = 0; i < 100000; i++)
     {
         huge_vector->at(i) = i;
@@ -35,6 +42,7 @@ int main(int argc, char *argv[])
     // Allocate all tables()
     function_1();
     // function_2(); //write meta data
+    pause();
     return 0;
 }
 

@@ -13,7 +13,7 @@ namespace moses
         // place
         // void* new_extent = mmap(new_addr, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
         void *new_extent = GetPlace()->GetPageManager()->Allocate(size);
-        printf("new extent: %p\n", new_extent);
+        printf("new extent of size %#zx: %p\n", size, new_extent);
         return new_extent;
     }
 

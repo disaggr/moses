@@ -4,6 +4,13 @@
 
 #include <thread>
 #include <pthread.h>
+#include <string.h>
+
+#define mallctl(C, ...) do { \
+    int res = mallctl(C, __VA_ARGS__); \
+    if (res != 0) { \
+        fprintf(stderr, "%s:%i:mallctl:%s: %i - %s\n", __FILE__, __LINE__, C, res, strerror(res)); \
+} } while (0)
 
 namespace moses {
 
@@ -43,8 +50,8 @@ void PlaceGuardStack::UpdateArena() {
     // update jemalloc with the arena currently at the top of the stack
     unsigned arena_id = _places.back()->GetArena()->GetId();
 
-    je_mallctl("tcache.flush", NULL, NULL, NULL, 0);
-    je_mallctl("thread.arena", NULL, NULL, (void*)&arena_id, sizeof(arena_id));
+    mallctl("thread.tcache.flush", NULL, NULL, NULL, 0);
+    mallctl("thread.arena", NULL, NULL, (void*)&arena_id, sizeof(arena_id));
 }
 
 PlaceGuard::PlaceGuard(Place *place) {
