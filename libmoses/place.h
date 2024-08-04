@@ -1,6 +1,7 @@
 #pragma once
 
 #include "memory_mapped_file_page_manager.h"
+#include "page_manager.h"
 #include "arena_base.h"
 
 #include <string>
@@ -39,21 +40,24 @@ enum contention {
 class Place {
     public:
         Place(std::string path, std::string name, contention arena_contention = contention::HIGH)
-            : Path(path), Name(name), _arena_contention(arena_contention) {};
+            : Path(path), Name(name), _arena_contention(arena_contention) {}
 
         const std::string Path;
         const std::string Name;
 
         BaseArena* GetArena();
 
-        void AddPageManager(std::shared_ptr<MemoryMappedFilePageManager> page_manager);
-        std::shared_ptr<MemoryMappedFilePageManager> GetPageManager();
+        //void AddPageManager(std::shared_ptr<MemoryMappedFilePageManager> page_manager);
+        void AddPageManager(std::shared_ptr<PageManager> page_manager);
+        //std::shared_ptr<MemoryMappedFilePageManager> GetPageManager();
+        std::shared_ptr<PageManager> GetPageManager();
 
     private:
         contention _arena_contention;
 
         std::map<core_index, BaseArena*> _core_to_arena;
-        std::vector<std::shared_ptr<MemoryMappedFilePageManager>> _page_managers;
+        //std::vector<std::shared_ptr<MemoryMappedFilePageManager>> _page_managers;
+        std::vector<std::shared_ptr<PageManager>> _page_managers;
         //std::map<uint64_t extent_address, 
 };
 

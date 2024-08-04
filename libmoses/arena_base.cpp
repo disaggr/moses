@@ -27,6 +27,7 @@ namespace moses
         size_t unsigned_sz = sizeof(unsigned);
         mallctl("arenas.create", (void *)&arena_ind, &unsigned_sz, nullptr, 0);
         _arena = arena_ind;
+        std::cout << "Creating new arena with id " << _arena << std::endl;
 
         // Register this arena object with the jemalloc arena
         ExtentHookDispatch::RegisterArena(this);

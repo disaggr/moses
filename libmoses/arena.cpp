@@ -20,7 +20,8 @@ namespace moses
     bool Arena::ExtentHookDAlloc(extent_hooks_t *extent_hooks, void *addr, size_t size,
                                  bool committed, unsigned arena_id)
     {
-        std::cout << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << ": Implement me" << std::endl;
+        GetPlace()->GetPageManager()->Deallocate(addr, size);
+        printf("delete extent of size %#zx: %p\n", size, addr);
         return false;
     }
 
@@ -33,8 +34,9 @@ namespace moses
     bool Arena::ExtentHookCommit(extent_hooks_t *extent_hooks, void *addr, size_t size,
                                  size_t offset, size_t length, unsigned arena_id)
     {
-        std::cout << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << ": Implement me" << std::endl;
-        return false;
+        //std::cout << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << ": Implement me" << std::endl;
+        //same with 'split' we return true
+        return true;
     }
 
     bool Arena::ExtentHookDecommit(extent_hooks_t *extent_hooks, void *addr, size_t size,
@@ -61,8 +63,9 @@ namespace moses
     bool Arena::ExtentHookSplit(extent_hooks_t *extent_hooks, void *addr, size_t size, size_t size_a,
                                 size_t size_b, bool committed, unsigned arena_id)
     {
-        std::cout << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << ": Implement me" << std::endl;
-        return false;
+        //std::cout << __FILE__ << ":" << __LINE__ << ":" << __FUNCTION__ << ": Implement me" << std::endl;
+        //We implement the 'split' by simply returning true
+        return true;
     }
 
     bool Arena::ExtentHookMerge(extent_hooks_t *extent_hooks, void *addr_a, size_t size_a, void *addr_b,

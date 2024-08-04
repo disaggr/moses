@@ -9,17 +9,18 @@
 // - Class to arena pinning (Factory(Place) pattern, because otherwise the memory get allocated outside of class definition)
 
 std::map<std::string, moses::Place> places = {
-    {"table", moses::Place("./long_lived", "table", moses::contention::LOW)},
-    {"temp", moses::Place("./short_lived", "temp", moses::contention::HIGH)}};
+    {"table", moses::Place("/mnt/moses/long_lived", "table", moses::contention::LOW)},
+    {"temp", moses::Place("/mnt/moses/short_lived", "temp", moses::contention::HIGH)}};
 
 void function_1()
 {
-    std::vector<int> *huge_vector = new std::vector<int>(100000);
+    //268435457 overflows 1 GiB by 1 element
+    std::vector<int> *huge_vector = new std::vector<int>(268435457U);
     printf("table vector: %p\n", huge_vector);
     printf("table vector data: %p\n", huge_vector->data());
     std::vector<int> *empty_vector = new std::vector<int>();
-    printf("table vector: %p\n", empty_vector);
-    printf("table vector data: %p\n", empty_vector->data());
+    printf("empty table vector: %p\n", empty_vector);
+    printf("empty table vector data: %p\n", empty_vector->data());
     std::vector<int> stack_vector;
     printf("stack vector: %p\n", &stack_vector);
     moses::PlaceGuard guard(&places.at("temp"));
@@ -33,6 +34,10 @@ void function_1()
         huge_vector->at(i) = i;
         huge_array[i] = i;
     }
+    free(huge_array);
+    free(small_array);
+    free(huge_vector);
+    free(empty_vector);
 }
 
 int main(int argc, char *argv[])

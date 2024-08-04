@@ -4,6 +4,12 @@
 
 #include <jemalloc/jemalloc.h>
 
+#define mallctl(C, ...) do { \
+    int res = mallctl(C, __VA_ARGS__); \
+    if (res != 0) { \
+        fprintf(stderr, "%s:%i:mallctl:%s: %i - %s\n", __FILE__, __LINE__, C, res, strerror(res)); \
+} } while (0)
+
 namespace moses
 {
 
@@ -15,12 +21,14 @@ namespace moses
     void Moses::Initialize(std::map<std::string, Place> *initial_config)
     {
         // je_mallctl("opt.retain", NULL, NULL, NULL, 0);
-        // je_mallctl("opt.narenas", NULL, NULL, NULL, 0); // we set this to 1 since we do arena management ourselves
+        mallctl("opt.narenas", NULL, NULL, NULL, 1); // we set this to 1 since we do arena management ourselves
         // je_mallctl("opt.percpu_arena", NULL, NULL, NULL, 0);
         for (auto &pair : *initial_config)
         {
             Place *place = &pair.second;
-            place->AddPageManager(std::make_shared<MemoryMappedFilePageManager>(place->Path, place->Name, 1024 * 1024 * 1024));
+            //uint64_t request_size = 1 * 1024 * 1024 * 1024U;
+            //place->AddPageManager(std::make_shared<MemoryMappedFilePageManager>(place->Path, place->Name, request_size));
+            place->AddPageManager(std::make_shared<PageManager>(place->Path, place->Name));
             //_place_tree.Insert(place);
         }
     }

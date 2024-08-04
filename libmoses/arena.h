@@ -10,7 +10,7 @@ namespace moses {
 
 class Arena : public BaseArena {
     public:
-        Arena(Place *place) : BaseArena(place) {};
+        Arena(Place *place) : BaseArena(place) {}
         
         void* ExtentHookAlloc(extent_hooks_t *extent_hooks, void *new_addr, size_t size,
                 size_t alignment, bool *zero, bool *commit, unsigned arena_id);

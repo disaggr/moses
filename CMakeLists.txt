@@ -19,6 +19,7 @@ ExternalProject_Add(Jemalloc
     PREFIX              ${JEMALLOC_PREFIX_DIR}
     CONFIGURE_COMMAND   cd ${JEMALLOC_SRC_DIR} && ./autogen.sh && ./configure
     #                            --with-jemalloc-prefix=je_
+                                --enable-debug
                             --prefix=${JEMALLOC_INSTALL_DIR}
     BUILD_COMMAND       cd ${JEMALLOC_SRC_DIR} && make && make install_lib install_lib_static install_include
     INSTALL_COMMAND     "")
@@ -45,7 +46,7 @@ add_dependencies(libjemalloc-shared Jemalloc)
 set(LIBMOSES_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libmoses)
 set(JEMALLOC_INCLUDE_DIR ${JEMALLOC_INSTALL_DIR}/include)
 set(JEMALLOC_INTERNAL_INCLUDE_DIR ${JEMALLOC_SRC_DIR}/include)
-target_include_directories(moses PRIVATE ${LIBMOSES_INCLUDE_DIR} ${JEMALLOC_INCLUDE_DIR} ${JEMALLOC_INTERNAL_INCLUDE_DIR})
+target_include_directories(moses PUBLIC ${LIBMOSES_INCLUDE_DIR} ${JEMALLOC_INCLUDE_DIR} ${JEMALLOC_INTERNAL_INCLUDE_DIR})
 
 # link moses to static libjemalloc
 target_link_libraries(moses libjemalloc-pic)
@@ -53,4 +54,4 @@ target_link_libraries(moses libjemalloc-pic)
 # also produce a test binary
 add_executable(moses_test moses_test.cpp)
 target_include_directories(moses_test PRIVATE ${LIBMOSES_INCLUDE_DIR} ${JEMALLOC_INCLUDE_DIR})
-target_link_libraries(moses_test moses)
+target_link_libraries(moses_test moses pthread dl)
