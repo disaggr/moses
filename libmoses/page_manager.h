@@ -35,8 +35,9 @@ private:
 
     std::string filename;
     uint64_t file_offset;
+    void *filepointer;
     int fd;
-    void* mapped_file;
+    void *mapped_file;
     std::vector<FileMapping> mapped_regions;
     std::recursive_mutex mtx;
     //TODO: Magic number

@@ -19,7 +19,7 @@ ExternalProject_Add(Jemalloc
     PREFIX              ${JEMALLOC_PREFIX_DIR}
     CONFIGURE_COMMAND   cd ${JEMALLOC_SRC_DIR} && ./autogen.sh && ./configure
     #                            --with-jemalloc-prefix=je_
-                                --enable-debug
+#                           --enable-debug
                             --prefix=${JEMALLOC_INSTALL_DIR}
     BUILD_COMMAND       cd ${JEMALLOC_SRC_DIR} && make && make install_lib install_lib_static install_include
     INSTALL_COMMAND     "")

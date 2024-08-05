@@ -1,5 +1,8 @@
 #include "page_manager.h"
 #include <filesystem>
+#include <fcntl.h>
+#include <cerrno>
+#include <cstring>
 
 namespace moses
 {
@@ -41,6 +44,7 @@ namespace moses
         if (new_mapped_region == MAP_FAILED)
         {
             //throw std::runtime_error("Failed to map new part (Offset: " << std::hex << size << " size: " << std::hex << additional_size << "of file to memory ");
+            std::cout << "mmap failed: " << std::strerror(errno) << std::endl;
             throw std::runtime_error("Failed to map new part of file to memory");
         }
         std::cout << "New FileMapping for " << fd << " at " << std::hex << new_mapped_region << std::endl;
@@ -59,6 +63,13 @@ namespace moses
         {
             throw std::runtime_error("Failed to unmap part of memory");
         }
+        /*ptrdiff_t offset = file_offset - reinterpret_cast<uint64_t>(start);
+        ret = fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE, offset, dealloc_size);
+        if (ret == -1)
+        {
+            throw std::runtime_error("Failed to fallocate (punch a hole) part of the underlying file");
+        }*/
+
         //uint64_t addr = (uint64_t) start;
         //FileMapping *fmp;
         //uint64_t offset;
