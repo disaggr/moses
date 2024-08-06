@@ -38,7 +38,7 @@ namespace moses
         close(fd);
     }
 
-    void *MemoryMappedFilePageManager::Allocate(uint64_t alloc_size)
+    void *MemoryMappedFilePageManager::Allocate(size_t alloc_size, size_t alignment)
     {
         printf("Allocating %#zx bytes in arena %s\n", alloc_size, filename.c_str());
         std::lock_guard<std::recursive_mutex> lock(mtx);

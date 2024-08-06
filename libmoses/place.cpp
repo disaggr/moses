@@ -3,7 +3,7 @@
 #include "arena.h"
 
 // FIXME: what is defined(numa)? isn't this always false?
-#if defined(numa) && defined(__linux__)
+#if /* defined(numa) && */ defined(__linux__)
 #include <sched.h> 
 #else
 int sched_getcpu(void) {
@@ -29,7 +29,12 @@ BaseArena* Place::GetArena() {
     // for this place, produce the arena for the currently active cpu id, create if necessary
     // FIXME: why do we need an arena per CPU?
     
+    // core?
+
+    // cpu
     int cpu = sched_getcpu();
+
+    // node?
 
     //get NUMA node
     //if contention is high, have an arena per logical core
@@ -52,6 +57,7 @@ BaseArena* Place::GetArena() {
     }
 
     if (_core_to_arena.find(cpu) == _core_to_arena.end()) {
+        fprintf(stderr, "arena.create: for cpu %d\n", cpu);
         Arena *arena = new Arena(this);
         _core_to_arena.emplace(cpu, arena);
     }

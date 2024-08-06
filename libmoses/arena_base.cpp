@@ -27,7 +27,7 @@ namespace moses
         size_t unsigned_sz = sizeof(unsigned);
         mallctl("arenas.create", (void *)&arena_ind, &unsigned_sz, nullptr, 0);
         _arena = arena_ind;
-        std::cout << "Creating new arena with id " << _arena << std::endl;
+        fprintf(stderr, "arena.create: %u\n", _arena);
 
         // Register this arena object with the jemalloc arena
         ExtentHookDispatch::RegisterArena(this);
@@ -72,17 +72,10 @@ namespace moses
         return ret;
     }
 
-    bool BaseArena::ExtentHookPurgeLazy(extent_hooks_t *extent_hooks, void *addr, size_t size,
+    bool BaseArena::ExtentHookPurge(extent_hooks_t *extent_hooks, void *addr, size_t size,
                                         size_t offset, size_t length, unsigned arena_id)
     {
         bool ret = _default_hooks->purge_lazy(_default_hooks, addr, size, offset, length, arena_id);
-        return ret;
-    }
-
-    bool BaseArena::ExtentHookPurgeForced(extent_hooks_t *extent_hooks, void *addr, size_t size,
-                                          size_t offset, size_t length, unsigned arena_id)
-    {
-        bool ret = _default_hooks->purge_forced(_default_hooks, addr, size, offset, length, arena_id);
         return ret;
     }
 

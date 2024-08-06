@@ -27,10 +27,7 @@ class Arena : public BaseArena {
         bool ExtentHookDecommit(extent_hooks_t *extent_hooks, void *addr, size_t size,
                 size_t offset, size_t length, unsigned arena_id);
 
-        bool ExtentHookPurgeLazy(extent_hooks_t *extent_hooks, void *addr, size_t size,
-                size_t offset, size_t length, unsigned arena_id);
-
-        bool ExtentHookPurgeForced(extent_hooks_t *extent_hooks, void *addr, size_t size,
+        bool ExtentHookPurge(extent_hooks_t *extent_hooks, void *addr, size_t size,
                 size_t offset, size_t length, unsigned arena_id);
 
         bool ExtentHookSplit(extent_hooks_t *extent_hooks, void *addr, size_t size, size_t size_a,

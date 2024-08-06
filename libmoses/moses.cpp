@@ -21,7 +21,7 @@ namespace moses
     void Moses::Initialize(std::map<std::string, Place> *initial_config)
     {
         // je_mallctl("opt.retain", NULL, NULL, NULL, 0);
-        mallctl("opt.narenas", NULL, NULL, NULL, 1); // we set this to 1 since we do arena management ourselves
+        //mallctl("opt.narenas", NULL, NULL, NULL, 1); // we set this to 1 since we do arena management ourselves
         // je_mallctl("opt.percpu_arena", NULL, NULL, NULL, 0);
         for (auto &pair : *initial_config)
         {
