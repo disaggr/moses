@@ -2,6 +2,7 @@
 #include "place.h"
 #include "extent_hook_dispatch.h"
 #include <jemalloc/jemalloc.h>
+#include "log.h"
 
 #define mallctl(C, ...) do { \
     int res = mallctl(C, __VA_ARGS__); \
@@ -27,7 +28,7 @@ namespace moses
         size_t unsigned_sz = sizeof(unsigned);
         mallctl("arenas.create", (void *)&arena_ind, &unsigned_sz, nullptr, 0);
         _arena = arena_ind;
-        fprintf(stderr, "arena.create: %u\n", _arena);
+        LOG("arena.create: %u", _arena);
 
         // Register this arena object with the jemalloc arena
         ExtentHookDispatch::RegisterArena(this);

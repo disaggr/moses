@@ -1,6 +1,7 @@
 #include "place.h"
 
 #include "arena.h"
+#include "log.h"
 
 // FIXME: what is defined(numa)? isn't this always false?
 #if /* defined(numa) && */ defined(__linux__)
@@ -57,7 +58,7 @@ BaseArena* Place::GetArena() {
     }
 
     if (_core_to_arena.find(cpu) == _core_to_arena.end()) {
-        fprintf(stderr, "arena.create: for cpu %d\n", cpu);
+        LOG("arena.create: for cpu %d", cpu);
         Arena *arena = new Arena(this);
         _core_to_arena.emplace(cpu, arena);
     }

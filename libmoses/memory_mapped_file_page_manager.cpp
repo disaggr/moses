@@ -1,5 +1,6 @@
 #include "memory_mapped_file_page_manager.h"
 #include <filesystem>
+#include "log.h"
 
 namespace moses
 {
@@ -23,7 +24,7 @@ namespace moses
         {
             throw std::runtime_error("Failed to map file");
         }
-        std::cout << "New FileMapping for " << full_path.c_str() << " (" << fd << ")" << " at " << std::hex << mapped_file << std::endl;
+        LOG("memorymappedfilemanager: New FileMapping for %s (%d) at %p", full_path.c_str(), fd, mapped_file);
         FileMapping fmp{mapped_file, size};
         mapped_regions.push_back(fmp);
         auto it = mapped_regions.end();
@@ -40,7 +41,7 @@ namespace moses
 
     void *MemoryMappedFilePageManager::Allocate(size_t alloc_size, size_t alignment)
     {
-        printf("Allocating %#zx bytes in arena %s\n", alloc_size, filename.c_str());
+        LOG("Allocating %#zx bytes in arena %s", alloc_size, filename.c_str());
         std::lock_guard<std::recursive_mutex> lock(mtx);
         auto it = free_regions.begin();
         for (;it != free_regions.end(); ++it)
@@ -111,7 +112,7 @@ namespace moses
             //throw std::runtime_error("Failed to map new part (Offset: " << std::hex << size << " size: " << std::hex << additional_size << "of file to memory ");
             throw std::runtime_error("Failed to map new part of file to memory");
         }
-        std::cout << "New FileMapping for " << fd << " at " << std::hex << new_mapped_region << std::endl;
+        LOG("memorymappedfilemanager: New FileMapping for %d at %p", fd, new_mapped_region);
         FileMapping fmp{new_mapped_region, additional_size};
         mapped_regions.push_back(fmp);
         auto it = mapped_regions.end();
