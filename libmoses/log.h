@@ -17,9 +17,10 @@ int load_log_state();
         log_state = load_log_state(); \
         if (log_state != LOG_ENABLED) \
           break; \
-      /*fall through */ \
+      /* else fall through */ \
       case LOG_ENABLED: \
         fprintf(stderr, msg, __VA_ARGS__); \
+        fprintf(stderr, "\n"); \
         break; \
     } \
   } while (0)

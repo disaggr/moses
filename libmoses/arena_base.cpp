@@ -3,12 +3,7 @@
 #include "extent_hook_dispatch.h"
 #include <jemalloc/jemalloc.h>
 #include "log.h"
-
-#define mallctl(C, ...) do { \
-    int res = mallctl(C, __VA_ARGS__); \
-    if (res != 0) { \
-        fprintf(stderr, "%s:%i:mallctl:%s: %i - %s\n", __FILE__, __LINE__, C, res, strerror(res)); \
-} } while (0)
+#include "mallctl.h"
 
 namespace moses
 {
@@ -20,13 +15,13 @@ namespace moses
         // Have this arena use the default hooks unless overridden
         size_t sz = sizeof(_default_hooks);
         // Assumption: arena.0 is always present
-        mallctl("arena.0.extent_hooks", (void *)&_default_hooks, &sz, NULL, 0);
+        moses_mallctl("arena.0.extent_hooks", (void *)&_default_hooks, &sz, NULL, 0);
 
         // Create new arena in jemalloc and couple it with the ExtentHookDispatch hooks
         // TODO: Have the metadata allocated seperately
-        unsigned arena_ind;
+        unsigned arena_ind = 0;
         size_t unsigned_sz = sizeof(unsigned);
-        mallctl("arenas.create", (void *)&arena_ind, &unsigned_sz, nullptr, 0);
+        moses_mallctl("arenas.create", (void *)&arena_ind, &unsigned_sz, nullptr, 0);
         _arena = arena_ind;
         LOG("arena.create: %u", _arena);
 
@@ -37,7 +32,7 @@ namespace moses
         extent_hooks_t *hooks = ExtentHookDispatch::GetDispatchHooks();
         size_t hooks_sz = sizeof(extent_hooks_t *);
         snprintf(command, sizeof(command), "arena.%u.extent_hooks", arena_ind);
-        mallctl(command, nullptr, nullptr, (void *)&hooks, sizeof(extent_hooks_t *));
+        moses_mallctl(command, nullptr, nullptr, (void *)&hooks, sizeof(extent_hooks_t *));
     }
 
     void *BaseArena::ExtentHookAlloc(extent_hooks_t *extent_hooks, void *new_addr, size_t size,
