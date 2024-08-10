@@ -55,6 +55,11 @@ namespace moses
         return new_mapped_region; 
     }
 
+    void *PageManager::Allocate(size_t alloc_size)
+    {
+        return Allocate(alloc_size, page_size);
+    }
+
     void PageManager::Deallocate(void *start, uint64_t dealloc_size)
     {
         std::lock_guard<std::recursive_mutex> lock(mtx);

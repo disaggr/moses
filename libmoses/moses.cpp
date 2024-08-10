@@ -22,7 +22,7 @@ namespace moses
             Place *place = &pair.second;
             //uint64_t request_size = 1 * 1024 * 1024 * 1024U;
             //place->AddPageManager(std::make_shared<MemoryMappedFilePageManager>(place->Path, place->Name, request_size));
-            place->AddPageManager(std::make_shared<PageManager>(place->Path, place->Name));
+            place->AddPageManager(std::make_shared<PageManager>(place->Path, place->Name), "default");
             //_place_tree.Insert(place);
         }
     }

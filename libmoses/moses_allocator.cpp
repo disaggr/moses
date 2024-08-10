@@ -3,17 +3,39 @@
 
 namespace moses {
 
-template <typename T>
-MosesAllocator<T>::MosesAllocator(Place *place) : _place(place) {
+MosesAllocator::MosesAllocator(std::shared_ptr<Place> place, std::string name) : _place(place) {
+    _page_manager = std::make_shared<PageManager>(place->Path, name);
+    size = 0;
+    capacity = 0;
+    current_base = nullptr;
 }
 
-template <typename T>
-T* MosesAllocator<T>::allocate(std::size_t n) {
-    // TODO: Implement memory allocation logic here
+void MosesAllocator::Reserve(std::size_t n) {
+    current_base = _page_manager->Allocate(n);
+    size = n;
+    capacity = n;
 }
 
-template <typename T>
-void MosesAllocator<T>::deallocate(T* p, std::size_t n) {
+void* MosesAllocator::Allocate(std::size_t n) {
+    void *addr;
+    if(n < capacity)
+    {
+        capacity -= n;
+        addr = current_base;
+        current_base = static_cast<char*>(current_base) + n;
+    }
+    else
+    {
+        current_base = _page_manager->Allocate(n);
+        size = RoundToNextPage(n);
+        capacity = size - n;
+        addr = current_base;
+        current_base = static_cast<char*>(current_base) + n;
+    }
+    return addr;
+}
+
+void MosesAllocator::Deallocate(void* p, std::size_t n) {
     // TODO: Implement memory deallocation logic here
 }
 }

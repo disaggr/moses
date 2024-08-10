@@ -16,6 +16,7 @@ public:
     PageManager(const std::string& directory, const std::string& filename);
     ~PageManager();
 
+    void* Allocate(size_t alloc_size);
     void* Allocate(size_t alloc_size, size_t alignment);
     void Deallocate(void* start, uint64_t dealloc_size);
 private:

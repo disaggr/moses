@@ -1,4 +1,5 @@
 #include "moses.h"
+#include "moses_allocator.h"
 
 // Make memory management a cooperative task
 // Give examples for:
@@ -40,13 +41,26 @@ void function_1()
     free(empty_vector);
 }
 
+void function_2()
+{
+    const size_t num_elements = 268435457;
+    std::shared_ptr<moses::Place> place_ptr = std::make_shared<moses::Place>(places.at("table"));
+    moses::MosesAllocator *_alloc = new moses::MosesAllocator(place_ptr, "table1");
+    void *addr = _alloc->Allocate(num_elements * sizeof(int));
+    int* int_ptr = static_cast<int*>(addr);
+    std::vector<int> vec(int_ptr, int_ptr + num_elements);
+    for (size_t i = 0; i < num_elements; ++i) {
+        vec.at(i) = 2;  // Manually destroy each int
+    }
+}
+
 int main(int argc, char *argv[])
 {
     moses::Moses::Initialize(&places);
     moses::PlaceGuard guard(&places.at("table"));
     // Allocate all tables()
     function_1();
-    // function_2(); //write meta data
+    function_2();
     pause();
     return 0;
 }

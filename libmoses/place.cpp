@@ -17,7 +17,7 @@ namespace moses {
 //void Place::AddPageManager(std::shared_ptr<MemoryMappedFilePageManager> page_manager) {
 void Place::AddPageManager(std::shared_ptr<PageManager> page_manager, std::string identifier) {
     // FIXME: what is a MemoryMappedFilePageManager?
-    _page_managers.insert(identifier, page_manager);
+    _page_managers.insert({identifier, page_manager});
 }
 
 //std::shared_ptr<MemoryMappedFilePageManager> Place::GetPageManager() {
