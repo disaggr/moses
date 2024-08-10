@@ -49,7 +49,7 @@ void PlaceGuardStack::UpdateArena() {
         // update jemalloc with the arena currently at the top of the stack
         arena_id = _places.back()->GetArena()->GetId();
     }
-    //mallctl("thread.tcache.flush", NULL, NULL, NULL, 0);
+    moses_mallctl("thread.tcache.flush", NULL, NULL, NULL, 0);
     moses_mallctl("thread.arena", NULL, NULL, (void*)&arena_id, sizeof(arena_id));
 }
 
