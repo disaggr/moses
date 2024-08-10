@@ -10,7 +10,7 @@ class MosesAllocator {
 public:
     using value_type = T;
 
-    MosesAllocator(Place *place);
+    MosesAllocator(Place *place, std::string identifier);
     ~MosesAllocator();
 
     T* allocate(std::size_t n);

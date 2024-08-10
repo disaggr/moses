@@ -48,16 +48,16 @@ class Place {
         BaseArena* GetArena();
 
         //void AddPageManager(std::shared_ptr<MemoryMappedFilePageManager> page_manager);
-        void AddPageManager(std::shared_ptr<PageManager> page_manager);
+        void AddPageManager(std::shared_ptr<PageManager> page_manager, std::string identifier);
         //std::shared_ptr<MemoryMappedFilePageManager> GetPageManager();
-        std::shared_ptr<PageManager> GetPageManager();
+        std::shared_ptr<PageManager> GetPageManager(std::string identifier = "default");
 
     private:
         contention _arena_contention;
 
         std::map<core_index, BaseArena*> _core_to_arena;
         //std::vector<std::shared_ptr<MemoryMappedFilePageManager>> _page_managers;
-        std::vector<std::shared_ptr<PageManager>> _page_managers;
+        std::map<std::string, std::shared_ptr<PageManager>> _page_managers;
         //std::map<uint64_t extent_address, 
 };
 
