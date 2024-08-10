@@ -16,7 +16,7 @@ public:
     MemoryMappedFilePageManager(const std::string& directory, const std::string& filename, uint64_t size);
     ~MemoryMappedFilePageManager();
 
-    void* Allocate(uint64_t alloc_size);
+    void* Allocate(size_t alloc_size, size_t alignment);
     void Deallocate(void* start, uint64_t dealloc_size);
     void IncreaseSize(uint64_t additional_size);
 private:

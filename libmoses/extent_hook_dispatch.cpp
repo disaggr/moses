@@ -17,8 +17,8 @@ bool ExtentHookDispatch::Initialize() {
     _dispatch_hooks->destroy = &ExtentHookDispatch::ExtentHookDestroy;
     _dispatch_hooks->commit = &ExtentHookDispatch::ExtentHookCommit;
     _dispatch_hooks->decommit = &ExtentHookDispatch::ExtentHookDecommit;
-    _dispatch_hooks->purge_lazy = &ExtentHookDispatch::ExtentHookPurgeLazy;
-    _dispatch_hooks->purge_forced = &ExtentHookDispatch::ExtentHookPurgeForced;
+    _dispatch_hooks->purge_lazy = &ExtentHookDispatch::ExtentHookPurge;
+    _dispatch_hooks->purge_forced = NULL,
     _dispatch_hooks->split = &ExtentHookDispatch::ExtentHookSplit;
     _dispatch_hooks->merge = &ExtentHookDispatch::ExtentHookMerge;
     //Initialize jemallocs arena 0 with this?
@@ -68,17 +68,10 @@ bool ExtentHookDispatch::ExtentHookDecommit(extent_hooks_t *extent_hooks, void *
     return success;
 }
 
-bool ExtentHookDispatch::ExtentHookPurgeLazy(extent_hooks_t *extent_hooks, void *addr, size_t size,
+bool ExtentHookDispatch::ExtentHookPurge(extent_hooks_t *extent_hooks, void *addr, size_t size,
                                              size_t offset, size_t length, unsigned arena_id) {
     Arena *arena = reinterpret_cast<Arena*>(arena_mapping[arena_id].arena_ptr.load());
-    bool success = arena->ExtentHookPurgeLazy(extent_hooks, addr, size, offset, length, arena_id);
-    return success;
-}
-
-bool ExtentHookDispatch::ExtentHookPurgeForced(extent_hooks_t *extent_hooks, void *addr, size_t size,
-                                               size_t offset, size_t length, unsigned arena_id) {
-    Arena *arena = reinterpret_cast<Arena*>(arena_mapping[arena_id].arena_ptr.load());
-    bool success = arena->ExtentHookPurgeForced(extent_hooks, addr, size, offset, length, arena_id);
+    bool success = arena->ExtentHookPurge(extent_hooks, addr, size, offset, length, arena_id);
     return success;
 }
 

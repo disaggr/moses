@@ -1,16 +1,12 @@
 #include "placeguard.h"
 
 #include <jemalloc/jemalloc.h>
+#include "mallctl.h"
 
 #include <thread>
 #include <pthread.h>
 #include <string.h>
 
-#define mallctl(C, ...) do { \
-    int res = mallctl(C, __VA_ARGS__); \
-    if (res != 0) { \
-        fprintf(stderr, "%s:%i:mallctl:%s: %i - %s\n", __FILE__, __LINE__, C, res, strerror(res)); \
-} } while (0)
 
 namespace moses {
 
@@ -54,7 +50,7 @@ void PlaceGuardStack::UpdateArena() {
         arena_id = _places.back()->GetArena()->GetId();
     }
     //mallctl("thread.tcache.flush", NULL, NULL, NULL, 0);
-    mallctl("thread.arena", NULL, NULL, (void*)&arena_id, sizeof(arena_id));
+    moses_mallctl("thread.arena", NULL, NULL, (void*)&arena_id, sizeof(arena_id));
 }
 
 PlaceGuard::PlaceGuard(Place *place) {

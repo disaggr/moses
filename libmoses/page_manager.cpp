@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <cerrno>
 #include <cstring>
+#include "log.h"
 
 namespace moses
 {
@@ -17,7 +18,7 @@ namespace moses
         {
             throw std::runtime_error("Failed to open file");
         }
-        std::cout << "New FileMapping for " << full_path.c_str() << " (" << fd << ")" << std::endl;
+        LOG("pagemanager: New FileMapping for %s (%d)", full_path.c_str(), fd);
     }
 
     PageManager::~PageManager()
@@ -27,9 +28,9 @@ namespace moses
         close(fd);
     }
 
-    void *PageManager::Allocate(uint64_t alloc_size)
+    void *PageManager::Allocate(size_t alloc_size, size_t alignment)
     {
-        printf("Allocating %#zx bytes in arena %s\n", alloc_size, filename.c_str());
+        LOG("pagemanager: Allocating %#zx bytes in arena %s", alloc_size, filename.c_str());
         std::lock_guard<std::recursive_mutex> lock(mtx);
         uint64_t additional_size = RoundToNextPage(alloc_size);
         uint64_t new_size = file_offset + additional_size;
@@ -47,7 +48,7 @@ namespace moses
             std::cout << "mmap failed: " << std::strerror(errno) << std::endl;
             throw std::runtime_error("Failed to map new part of file to memory");
         }
-        std::cout << "New FileMapping for " << fd << " at " << std::hex << new_mapped_region << std::endl;
+        LOG("pagemanager: New FileMapping for %d at %p", fd, new_mapped_region);
         //7FileMapping fmp{new_mapped_region, additional_size};
         //mapped_regions.push_back(fmp);
         file_offset = new_size;
@@ -57,7 +58,7 @@ namespace moses
     void PageManager::Deallocate(void *start, uint64_t dealloc_size)
     {
         std::lock_guard<std::recursive_mutex> lock(mtx);
-        std::cout << "Delete FileMapping for " << fd << " at " << std::hex << start << " and size " << dealloc_size << std::endl;
+        LOG("pagemanager: Delete FileMapping for %d at %p and size %#zx", fd, start, dealloc_size);
         int ret = munmap(start, dealloc_size);
         if (ret == -1)
         {
