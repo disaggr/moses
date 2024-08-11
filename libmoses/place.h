@@ -3,10 +3,12 @@
 #include "memory_mapped_file_page_manager.h"
 #include "page_manager.h"
 #include "arena_base.h"
+#include "common.h"
 
 #include <string>
 #include <map>
 #include <memory>
+#include <atomic>
 
 namespace moses {
 
@@ -39,8 +41,7 @@ enum contention {
 
 class Place {
     public:
-        Place(std::string path, std::string name, contention arena_contention = contention::HIGH)
-            : Path(path), Name(name), _arena_contention(arena_contention) {}
+        Place(std::string path, std::string name, contention arena_contention = contention::HIGH);
 
         const std::string Path;
         const std::string Name;
@@ -55,10 +56,16 @@ class Place {
     private:
         contention _arena_contention;
 
-        std::map<core_index, BaseArena*> _core_to_arena;
+        struct alignas(CACHELINE_SIZE) CacheAlignedArenaMapping {
+        union {
+            std::atomic<BaseArena *> arena_ptr;
+            char padding[CACHELINE_SIZE];
+        };
+        };
+        CacheAlignedArenaMapping *_core_to_arena;
         //std::vector<std::shared_ptr<MemoryMappedFilePageManager>> _page_managers;
         std::map<std::string, std::shared_ptr<PageManager>> _page_managers;
-        //std::map<uint64_t extent_address, 
+        //std::map<uint64_t extent_address,
 };
 
 }

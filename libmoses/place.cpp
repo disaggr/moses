@@ -5,7 +5,8 @@
 
 // FIXME: what is defined(numa)? isn't this always false?
 #if /* defined(numa) && */ defined(__linux__)
-#include <sched.h> 
+#include <sched.h>
+#include <unistd.h>
 #else
 int sched_getcpu(void) {
     return 0;
@@ -13,6 +14,17 @@ int sched_getcpu(void) {
 #endif
 
 namespace moses {
+
+Place::Place(std::string path, std::string name, contention arena_contention)
+            : Path(path), Name(name), _arena_contention(arena_contention) {
+    core_index number_of_processors = sysconf(_SC_NPROCESSORS_ONLN);
+    _core_to_arena = new CacheAlignedArenaMapping[number_of_processors];
+    for(core_index i = 0; i < number_of_processors; i++)
+    {
+        _core_to_arena[i].arena_ptr.store(nullptr);
+    }
+
+}
 
 //void Place::AddPageManager(std::shared_ptr<MemoryMappedFilePageManager> page_manager) {
 void Place::AddPageManager(std::shared_ptr<PageManager> page_manager, std::string identifier) {
@@ -57,13 +69,14 @@ BaseArena* Place::GetArena() {
         break;
     }
 
-    if (_core_to_arena.find(cpu) == _core_to_arena.end()) {
+    //TODO: this could possibly still go wrong, if the thread in the if body gets interrupted
+    if (_core_to_arena[cpu].arena_ptr.load() == nullptr) {
         LOG("arena.create: for cpu %d", cpu);
         Arena *arena = new Arena(this);
-        _core_to_arena.emplace(cpu, arena);
+        _core_to_arena[cpu].arena_ptr.store(arena);
     }
 
-    return _core_to_arena.at(cpu);
+    return _core_to_arena[cpu].arena_ptr.load();
 }
 
 }
