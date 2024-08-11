@@ -76,6 +76,10 @@ namespace moses
     void MemoryMappedFilePageManager::Deallocate(void *start, uint64_t dealloc_size)
     {
         std::lock_guard<std::recursive_mutex> lock(mtx);
+        int res = madvise(start, dealloc_size, MADV_REMOVE);
+        if (res != 0) {
+            throw std::runtime_error("Failed to dellocate memory");
+        }
         uint64_t addr = (uint64_t) start;
         FileMapping *fmp;
         uint64_t offset;
