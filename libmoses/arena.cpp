@@ -82,6 +82,10 @@ namespace moses
         LOG("arena.%d.extent.purge: addr: %p, size: %#zx, offset: %#zx, length: %#zx", arena_id, addr, size, offset, length);
 
         // report failure (opt out).
+        int res = madvise(addr, size, MADV_REMOVE);
+        if (res != 0) {
+            throw std::runtime_error("Failed to dellocate memory");
+        }
         return true;
     }
 
